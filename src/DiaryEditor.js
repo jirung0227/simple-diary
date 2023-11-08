@@ -5,6 +5,7 @@ export const DiaryEditor = () => {
   const [state, setState] = useState({
     author: "",
     content: "",
+    emotion: 1,
   });
 
   const handleChangeState = (e) => {
@@ -12,6 +13,10 @@ export const DiaryEditor = () => {
       ...state,
       [e.target.name]: e.target.value,
     });
+  };
+  const handleSubmit = (e) => {
+    console.log(state);
+    alert("저장성공");
   };
   return (
     <div className='DiaryEditor'>
@@ -24,14 +29,29 @@ export const DiaryEditor = () => {
         />
       </div>
       <div>
-        {/* 입력받은 값을 새로운 상태값으로 저장한다. */}
         <textarea
           name='content'
           value={state.content}
-          onChange={(e) => {
-            setState(handleChangeState);
-          }}
+          onChange={handleChangeState}
         />
+      </div>
+      <div>
+        오늘의 감정점수 :
+        <select
+          name='emotion'
+          id='emotion'
+          value={state.emotion}
+          onChange={handleChangeState}
+        >
+          <option value={1}>1</option>
+          <option value={2}>2</option>
+          <option value={3}>3</option>
+          <option value={4}>4</option>
+          <option value={5}>5</option>
+        </select>
+      </div>
+      <div>
+        <button onClick={handleSubmit}>일기 저장하기</button>
       </div>
     </div>
   );
