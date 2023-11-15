@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 
 export const DiaryEditor = () => {
   // 하나의 객체로 상태관리
@@ -7,6 +7,9 @@ export const DiaryEditor = () => {
     content: "",
     emotion: 1,
   });
+  // html돔 요소를 접근할 수 있는 기능
+  const authorInput = useRef();
+  const contentInput = useRef();
 
   const handleChangeState = (e) => {
     setState({
@@ -15,14 +18,24 @@ export const DiaryEditor = () => {
     });
   };
   const handleSubmit = (e) => {
+    if (state.author.length < 1) {
+      authorInput.current.focus();
+      return;
+    }
+    if (state.content.length < 5) {
+      contentInput.current.focus();
+      return;
+    }
     console.log(state);
-    alert("저장성공");
+    alert("저장 성공");
   };
   return (
     <div className='DiaryEditor'>
       <h2>오늘의 일기</h2>
       <div>
+        {/* input태그에 접근 가능 */}
         <input
+          ref={authorInput}
           name='author'
           value={state.author}
           onChange={handleChangeState}
@@ -30,6 +43,7 @@ export const DiaryEditor = () => {
       </div>
       <div>
         <textarea
+          ref={contentInput}
           name='content'
           value={state.content}
           onChange={handleChangeState}
