@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { DiaryEditor } from "./DiaryEditor";
 import DiaryList from "./DiaryList";
+import OptimizeObjTest from "./OptimizeObjTest";
+import OptimizeTest from "./OptimizeTest";
 
 function App() {
   const [data, setData] = useState([]);
@@ -57,7 +59,6 @@ function App() {
   //두번째 인자인 dependency배열의 값이 바뀔되면 콜백함수 실행
   //useMemo 리턴값은 콜백함수 리턴값
   const getDiaryAnalysis = useMemo(() => {
-    console.log("일기 분석 시작");
     const goodCount = data.filter((it) => it.emotion >= 3).length;
     const badCount = data.length - goodCount;
     const goodRatio = Math.round((goodCount / data.length) * 100);
@@ -67,6 +68,8 @@ function App() {
 
   return (
     <div className='App'>
+      <OptimizeTest />
+      <OptimizeObjTest />
       <DiaryEditor onCreate={onCreate} />
       <div>전체 일기 : {data.length}</div>
       <div>기분 좋은 일기 개수 : {goodCount}</div>
