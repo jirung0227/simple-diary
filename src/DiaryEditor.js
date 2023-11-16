@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 
-export const DiaryEditor = () => {
+export const DiaryEditor = ({ onCreate }) => {
   // 하나의 객체로 상태관리
   const [state, setState] = useState({
     author: "",
@@ -26,8 +26,15 @@ export const DiaryEditor = () => {
       contentInput.current.focus();
       return;
     }
-    console.log(state);
+
+    onCreate(state.author, state.content, state.emotion);
     alert("저장 성공");
+    // 기본 값 초기화
+    setState({
+      author: "",
+      content: "",
+      emotion: 1,
+    });
   };
   return (
     <div className='DiaryEditor'>
