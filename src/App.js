@@ -1,10 +1,33 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import "./App.css";
 import { DiaryEditor } from "./DiaryEditor";
 import DiaryList from "./DiaryList";
 
+const reducer = (state, action) => {
+  switch (action.type) {
+    case "INIT":
+      return action.data;
+    case "CREATE":
+      const created_date = new Date().getTime();
+      const newItem = {
+        ...action.data,
+        created_date,
+      };
+
+      return [newItem, ...state];
+    case "REMOVE":
+      return state.filter((it) => it.id !== action.targetId);
+    case "EDIT":
+      return state.map((it) =>
+        it.id === action.targetId ? { ...it, content: action.newContent } : it
+      );
+
+    default:
+      return state;
+  }
+};
 function App() {
-  const [data, setData] = useState([]);
+  const [data, dispatch] = useReducer(reducer, []);
   const dataId = useRef(0);
 
   const getData = async () => {
@@ -21,47 +44,39 @@ function App() {
         id: dataId.current++,
       };
     });
-    setData(initData);
+    dispatch({ type: "INIT", data: initData });
   };
 
   useEffect(() => {
     getData();
   }, []);
 
+  /**
+   * reducer함수 사용시 함수형 업데이트 필요없이 현재의 state를 자동으로 참조해주어
+   * useCallback을 쓰면서 의존성 배열을 걱정할 필요가 없다.
+   */
   const onCreate = useCallback((author, content, emotion) => {
-    const created_date = new Date().getTime();
-    const newItem = {
-      author,
-      content,
-      emotion,
-      created_date,
-      id: dataId.current,
-    };
+    dispatch({
+      type: "CREATE",
+      data: {
+        author,
+        content,
+        emotion,
+        id: dataId.current,
+      },
+    });
+
     dataId.current += 1;
-
-    /** 메모제이션 사용시 의존성 배열에 있는 값이 바뀌지 않으면 함수가 재렌더링되지 않으므로
-     * state의 값을 최신값으로 사용하지 못하는 문제가 발생할 수 있다.
-     * 이때 함수형 업데이트를 사용하자 */
-
-    // 함수형 업데이트 : 인자를 넘겨줌으로써 현재 값을 사용할 수 있다.
-    setData((data) => [newItem, ...data]);
-    // 값 업데이트 : 값을 넘겨줌으로써 렌더링된 시점의 값을 사용하게 된다.
-    // setData([newItem, ...data]);
   }, []);
 
   const onRemove = useCallback((targetId) => {
-    // const newDiaryList = data.filter((it) => it.id !== targetId);
-    // 함수형 업데이트
-    setData((data) => data.filter((it) => it.id !== targetId));
+    dispatch({ type: "REMOVE", targetId });
   }, []);
 
   const onEdit = useCallback((targetId, newContent) => {
-    setData((data) =>
-      data.map((it) =>
-        it.id === targetId ? { ...it, content: newContent } : it
-      )
-    );
+    dispatch({ type: "EDIT", targetId, newContent });
   }, []);
+
   //첫번째 인자인 콜백함수가 리턴하는 값을 최적화 할 수 있도록 도와줌
   //두번째 인자인 dependency배열의 값이 바뀔되면 콜백함수 실행
   //useMemo 리턴값은 콜백함수 리턴값
