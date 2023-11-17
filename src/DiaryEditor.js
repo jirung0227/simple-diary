@@ -1,10 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
+import { DiaryDispatchContext } from "./App";
 
-export const DiaryEditor = React.memo(({ onCreate }) => {
-  // useEffect(() => {
-  //   console.log("update");
-  // }, []);
-  // 하나의 객체로 상태관리
+export const DiaryEditor = React.memo(() => {
+  const { onCreate } = useContext(DiaryDispatchContext);
+
   const [state, setState] = useState({
     author: "",
     content: "",

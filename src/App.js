@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from "react";
 import "./App.css";
 import { DiaryEditor } from "./DiaryEditor";
 import DiaryList from "./DiaryList";
@@ -26,6 +32,9 @@ const reducer = (state, action) => {
       return state;
   }
 };
+
+export const DiaryStateContext = React.createContext();
+export const DiaryDispatchContext = React.createContext();
 function App() {
   const [data, dispatch] = useReducer(reducer, []);
   const dataId = useRef(0);
@@ -77,6 +86,15 @@ function App() {
     dispatch({ type: "EDIT", targetId, newContent });
   }, []);
 
+  // const dispatches = {
+  //   onCreate, onRemove, onEdit
+  // }
+  //위 형식은 재렌더링시 재 생성됨
+  //재생성되지 않게 useMemo를 사용하여 객체를 묵어야함
+  const memoizedDispatches = useMemo(() => {
+    return { onCreate, onRemove, onEdit };
+  }, []);
+
   //첫번째 인자인 콜백함수가 리턴하는 값을 최적화 할 수 있도록 도와줌
   //두번째 인자인 dependency배열의 값이 바뀔되면 콜백함수 실행
   //useMemo 리턴값은 콜백함수 리턴값
@@ -89,14 +107,18 @@ function App() {
   const { goodCount, badCount, goodRatio } = getDiaryAnalysis;
 
   return (
-    <div className='App'>
-      <DiaryEditor onCreate={onCreate} />
-      <div>전체 일기 : {data.length}</div>
-      <div>기분 좋은 일기 개수 : {goodCount}</div>
-      <div>기분 나쁜 일기 개수 : {badCount}</div>
-      <div>기분 좋은 일기 비율 : {goodRatio}</div>
-      <DiaryList onEdit={onEdit} onRemove={onRemove} diaryList={data} />
-    </div>
+    <DiaryStateContext.Provider value={data}>
+      <DiaryDispatchContext.Provider value={memoizedDispatches}>
+        <div className='App'>
+          <DiaryEditor onCreate={onCreate} />
+          <div>전체 일기 : {data.length}</div>
+          <div>기분 좋은 일기 개수 : {goodCount}</div>
+          <div>기분 나쁜 일기 개수 : {badCount}</div>
+          <div>기분 좋은 일기 비율 : {goodRatio}</div>
+          <DiaryList onEdit={onEdit} onRemove={onRemove} />
+        </div>
+      </DiaryDispatchContext.Provider>
+    </DiaryStateContext.Provider>
   );
 }
 
