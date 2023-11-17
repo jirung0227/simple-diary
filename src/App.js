@@ -49,18 +49,19 @@ function App() {
     // setData([newItem, ...data]);
   }, []);
 
-  const onRemove = (targetId) => {
-    const newDiaryList = data.filter((it) => it.id !== targetId);
-    setData(newDiaryList);
-  };
+  const onRemove = useCallback((targetId) => {
+    // const newDiaryList = data.filter((it) => it.id !== targetId);
+    // 함수형 업데이트
+    setData((data) => data.filter((it) => it.id !== targetId));
+  }, []);
 
-  const onEdit = (targetId, newContent) => {
-    setData(
+  const onEdit = useCallback((targetId, newContent) => {
+    setData((data) =>
       data.map((it) =>
         it.id === targetId ? { ...it, content: newContent } : it
       )
     );
-  };
+  }, []);
   //첫번째 인자인 콜백함수가 리턴하는 값을 최적화 할 수 있도록 도와줌
   //두번째 인자인 dependency배열의 값이 바뀔되면 콜백함수 실행
   //useMemo 리턴값은 콜백함수 리턴값
