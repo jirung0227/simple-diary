@@ -1,6 +1,9 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-export const DiaryEditor = ({ onCreate }) => {
+export const DiaryEditor = React.memo(({ onCreate }) => {
+  useEffect(() => {
+    console.log("update");
+  }, []);
   // 하나의 객체로 상태관리
   const [state, setState] = useState({
     author: "",
@@ -76,4 +79,4 @@ export const DiaryEditor = ({ onCreate }) => {
       </div>
     </div>
   );
-};
+});

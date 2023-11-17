@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./App.css";
 import { DiaryEditor } from "./DiaryEditor";
 import DiaryList from "./DiaryList";
-import OptimizeObjTest from "./OptimizeObjTest";
-import OptimizeTest from "./OptimizeTest";
 
 function App() {
   const [data, setData] = useState([]);
@@ -30,7 +28,7 @@ function App() {
     getData();
   }, []);
 
-  const onCreate = (author, content, emotion) => {
+  const onCreate = useCallback((author, content, emotion) => {
     const created_date = new Date().getTime();
     const newItem = {
       author,
@@ -40,8 +38,16 @@ function App() {
       id: dataId.current,
     };
     dataId.current += 1;
-    setData([newItem, ...data]);
-  };
+
+    /** 메모제이션 사용시 의존성 배열에 있는 값이 바뀌지 않으면 함수가 재렌더링되지 않으므로
+     * state의 값을 최신값으로 사용하지 못하는 문제가 발생할 수 있다.
+     * 이때 함수형 업데이트를 사용하자 */
+
+    // 함수형 업데이트 : 인자를 넘겨줌으로써 현재 값을 사용할 수 있다.
+    setData((data) => [newItem, ...data]);
+    // 값 업데이트 : 값을 넘겨줌으로써 렌더링된 시점의 값을 사용하게 된다.
+    // setData([newItem, ...data]);
+  }, []);
 
   const onRemove = (targetId) => {
     const newDiaryList = data.filter((it) => it.id !== targetId);
@@ -68,8 +74,6 @@ function App() {
 
   return (
     <div className='App'>
-      <OptimizeTest />
-      <OptimizeObjTest />
       <DiaryEditor onCreate={onCreate} />
       <div>전체 일기 : {data.length}</div>
       <div>기분 좋은 일기 개수 : {goodCount}</div>
